@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "doc-formatter"
+version = "0.1.0"
+description = ""
+authors = ["Vladislav <113159483+Ada-lave@users.noreply.github.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.6"
+uvicorn = "^0.32.1"
+python-docx = "^1.1.2"
+python-multipart = "^0.0.19"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

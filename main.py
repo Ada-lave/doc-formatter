@@ -7,6 +7,7 @@ from docx.oxml import OxmlElement
 from docx.text.paragraph import Paragraph
 import tempfile
 import os
+import subprocess
 
 app = FastAPI()
 
@@ -42,6 +43,7 @@ async def process_docx(
     file: UploadFile = File(...),
     top_margin: bool = Query(default=False),
     bottom_margin: bool = Query(default=True),
+    convert_to_pdf: bool = Query(default=False),
 ):
     if not file.filename.endswith(".docx"):
         return JSONResponse({"error": "Uploaded file is not a .docx file"}, 422)
@@ -73,6 +75,16 @@ async def process_docx(
 
     output_file_path = tempfile.mktemp(suffix=".docx")
     doc.save(output_file_path)
+
+    if convert_to_pdf:
+        pdf_file_path = tempfile.mktemp(suffix=".pdf")
+        subprocess.run(["libreoffice", "--headless", "--convert-to", "pdf", "--outdir", os.path.dirname(pdf_file_path), output_file_path])
+        os.remove(output_file_path)
+        return FileResponse(
+            pdf_file_path,
+            filename=f"processed_{os.path.splitext(file.filename)[0]}.pdf",
+            media_type="application/pdf",
+        )
 
     os.remove(temp_file_path)
 

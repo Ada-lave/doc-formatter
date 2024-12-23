@@ -77,8 +77,8 @@ async def process_docx(
     doc.save(output_file_path)
 
     if convert_to_pdf:
-        pdf_file_path = tempfile.mktemp(suffix=".pdf")
-        subprocess.run(["libreoffice", "--headless", "--convert-to", "pdf", "--outdir", os.path.dirname(pdf_file_path), output_file_path])
+        pdf_file_path = os.path.splitext(output_file_path)[0] + ".pdf"
+        subprocess.run(["libreoffice", "--headless", "--convert-to", "pdf", output_file_path, "--outdir", os.path.dirname(output_file_path)])
         os.remove(output_file_path)
         return FileResponse(
             pdf_file_path,

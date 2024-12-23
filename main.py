@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Query
 from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -38,7 +38,12 @@ def is_paragraph_picture(paragraph: Paragraph):
 
 
 @app.post("/process-docx/")
-async def process_docx(file: UploadFile = File(...)):
+async def process_docx(
+    convert_to_pdf: bool,
+    file: UploadFile = File(...),
+    top_margin: bool = Query(default=False),
+    bottom_margin: bool = Query(default=True),
+):
     if not file.filename.endswith(".docx"):
         return JSONResponse({"error": "Uploaded file is not a .docx file"}, 422)
 
@@ -57,7 +62,15 @@ async def process_docx(file: UploadFile = File(...)):
             if next_paragraph.text.strip() != "" or is_paragraph_picture(
                 next_paragraph
             ):
-                insert_paragraph_after(paragraph, "")
+                if bottom_margin:
+                    insert_paragraph_after(paragraph, "")
+            # Проверяем наличие отступа сверху от картинки
+            if top_margin and i > 0:
+                prev_paragraph = doc.paragraphs[i - 1]
+                if not prev_paragraph.text.strip() and not is_paragraph_picture(
+                    prev_paragraph
+                ):
+                    insert_paragraph_after(prev_paragraph, "")
 
     output_file_path = tempfile.mktemp(suffix=".docx")
     doc.save(output_file_path)

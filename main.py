@@ -37,7 +37,7 @@ def is_paragraph_picture(paragraph: Paragraph):
     return any("pic:pic" in run.element.xml for run in paragraph.runs)
 
 
-@app.post("/process-docx/")
+@app.post("/process-docx")
 async def process_docx(
     file: UploadFile = File(...),
     top_margin: bool = Query(default=False),
@@ -64,9 +64,9 @@ async def process_docx(
                 if bottom_margin:
                     insert_paragraph_after(paragraph, "")
             # Проверяем наличие отступа сверху от картинки
-            if top_margin and i > 0:
-                prev_paragraph = doc.paragraphs[i - 1]
-                if not prev_paragraph.text.strip() and not is_paragraph_picture(
+            if top_margin and i > 2:
+                prev_paragraph = doc.paragraphs[i - 2]
+                if len(prev_paragraph.text.strip()) > 0 and not is_paragraph_picture(
                     prev_paragraph
                 ):
                     insert_paragraph_after(prev_paragraph, "")

@@ -39,7 +39,6 @@ def is_paragraph_picture(paragraph: Paragraph):
 
 @app.post("/process-docx/")
 async def process_docx(
-    convert_to_pdf: bool,
     file: UploadFile = File(...),
     top_margin: bool = Query(default=False),
     bottom_margin: bool = Query(default=True),
